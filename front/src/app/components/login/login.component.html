@@ -1,0 +1,24 @@
+<div class="row">
+    <div class="col-md-4 offset-md-4">
+        <div class="card">
+            <div class="card-header bg-dark text-white d-flex justify-content-center ">
+                Login
+            </div>
+            <div class="card-body">
+                <form (submit)="register()">
+                    <div class="form-group">
+                        <i class="fas fa-user"></i><label for="username">&nbsp;Nombre de usuario:</label>
+                        <input type="text" name="username" [(ngModel)]="user.username" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <i class="fas fa-key"></i><label for="password">&nbsp;Contraseña:</label>
+                        <input type="password" name="password" [(ngModel)]="user.password" class="form-control" required>
+                    </div>
+                    <button type="submit" class="btn btn-success btn-block">
+                        Entrar
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,21 @@
+<div class="row">
+    <div class="col-md-4 offset-md-4">
+        <div class="card">
+            <div class="card-body">
+                <form (submit)="updateUser()">
+                    <div class="form-group">
+                        <i class="fas fa-user"></i><label for="username">&nbsp;Nombre de usuario:</label>
+                        <input type="text" name="username" [(ngModel)]="user.username" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <i class="fas fa-envelope"></i><label for="email">&nbsp;Email:</label>
+                        <input type="text" name="email" [(ngModel)]="user.email" class="form-control" required>
+                    </div>
+                    <button type="submit" class="btn btn-success btn-block">
+                        Guardar
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,23 @@
+<div class="row">
+    <div class="col-md-4" *ngFor="let user of users">
+        <div class="card text-center">
+            <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+                Usuario {{user.id}}
+                <div>
+                    <button [routerLink]="['/users/edit', user.id]" class="btn btn-success m-1">
+                        <i class="far fa-edit"></i>
+                    </button>
+                    <button class="btn btn-danger" (click)="borrarUser(user.id)">
+                        <i class="far fa-trash-alt"></i>
+                    </button>
+                </div>
+            </div>
+    
+            <div class="card-body text-left">
+                <p>Nombre de usuario: {{user.username}}</p>
+                <p>Contraseña: {{user.password}}</p>
+                <p>Email: {{user.email}}</p>
+            </div>
+        </div>
+    </div>    
+</div>
