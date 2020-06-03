@@ -11,4 +11,6 @@ router.get('/:id', usersController_1.default.verifyToken, usersController_1.defa
 router.post('/', usersController_1.default.verifyToken, usersController_1.default.createUser);
 router.delete('/:id', usersController_1.default.verifyToken, usersController_1.default.deleteUser);
 router.put('/:id', usersController_1.default.verifyToken, usersController_1.default.updateUser);
+// actualizar contraseña
+router.put('/changepass', usersController_1.default.verifyToken, usersController_1.default.changePassword);
 exports.default = router;

@@ -42,9 +42,55 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var user_1 = require("../models/user");
 var config_1 = __importDefault(require("../config/config"));
 var jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
+var bcryptjs_1 = __importDefault(require("bcryptjs"));
 var database_1 = __importDefault(require("../database"));
 var UsersController = /** @class */ (function () {
     function UsersController() {
+        var _this = this;
+        this.changePassword = function (req, res) { return __awaiter(_this, void 0, void 0, function () {
+            var userId, _a, oldPassword, newPassword, user, salt, e_1;
+            return __generator(this, function (_b) {
+                switch (_b.label) {
+                    case 0:
+                        userId = res.locals.jwtPayload //requiere el payload creado desde el verifytoken
+                        ;
+                        _a = req.body //requiere los datos del front
+                        , oldPassword = _a.oldPassword, newPassword = _a.newPassword;
+                        //comprobaciones
+                        if (!(oldPassword && newPassword)) {
+                            res.status(400).json({ message: 'Los campos son requeridos' });
+                        }
+                        return [4 /*yield*/, database_1.default.query('SELECT * FROM users WHERE id = ?', [userId])
+                            // check pass
+                            //compara el password del front con el que recibimos de la base de datos, si coincide devuelve true sino false
+                        ];
+                    case 1:
+                        user = _b.sent();
+                        // check pass
+                        //compara el password del front con el que recibimos de la base de datos, si coincide devuelve true sino false
+                        if ((bcryptjs_1.default.compareSync(oldPassword, user[0].password)) == false) {
+                            return [2 /*return*/, res.status(400).json({ message: 'Chequea la vieja contraseña' })];
+                        }
+                        user[0].password = newPassword;
+                        _b.label = 2;
+                    case 2:
+                        _b.trys.push([2, 4, , 5]);
+                        salt = bcryptjs_1.default.genSaltSync(10) // genera el salt
+                        ;
+                        user[0].password = bcryptjs_1.default.hashSync(user[0].password, salt); // le pasa el password del front y el salt generado
+                        return [4 /*yield*/, database_1.default.query('UPDATE users set ? WHERE id = ?', [user[0], userId])];
+                    case 3:
+                        _b.sent();
+                        return [3 /*break*/, 5];
+                    case 4:
+                        e_1 = _b.sent();
+                        return [2 /*return*/, res.status(400).json({ message: 'error de hash' })];
+                    case 5:
+                        res.json({ message: 'Contraseña cambiada exitosamente' });
+                        return [2 /*return*/];
+                }
+            });
+        }); };
     }
     UsersController.prototype.listUsers = function (req, res) {
         return __awaiter(this, void 0, void 0, function () {
@@ -81,14 +127,14 @@ var UsersController = /** @class */ (function () {
     };
     UsersController.prototype.createUser = function (req, res) {
         return __awaiter(this, void 0, void 0, function () {
-            var _a, username, password, email, user, e_1;
+            var _a, username, password, email, user, e_2;
             return __generator(this, function (_b) {
                 switch (_b.label) {
                     case 0:
                         _a = req.body, username = _a.username, password = _a.password, email = _a.email;
                         //comprobar si existe
                         if (!(username && password && email)) {
-                            return [2 /*return*/, res.status(400).json({ message: 'datos incorrectos' })];
+                            return [2 /*return*/, res.status(400).json({ message: 'Datos incorrectos' })];
                         }
                         user = new user_1.UserI();
                         user.username = username;
@@ -103,11 +149,11 @@ var UsersController = /** @class */ (function () {
                         _b.sent(); // se le pasa user para que lo guarde en la base de datos
                         return [3 /*break*/, 4];
                     case 3:
-                        e_1 = _b.sent();
-                        return [2 /*return*/, res.status(400).json({ message: 'error de hash' })];
+                        e_2 = _b.sent();
+                        return [2 /*return*/, res.status(400).json({ message: 'Error de hash' })];
                     case 4:
                         //all ok
-                        res.send('CREATED USER');
+                        res.send('Usuario creado');
                         return [2 /*return*/];
                 }
             });
@@ -132,7 +178,7 @@ var UsersController = /** @class */ (function () {
         var jwtPayload;
         try {
             jwtPayload = jsonwebtoken_1.default.verify(token, config_1.default.jwtSecret); // metodo verify, le pasamos el token y el secret
-            req.userId = jwtPayload.userId;
+            res.locals.jwtPayload = jwtPayload.userId;
         }
         catch (e) {
             return res.status(401).json({ msg: 'No autorizado' });

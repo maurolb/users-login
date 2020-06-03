@@ -96,7 +96,7 @@ var AuthController = /** @class */ (function () {
                     _b.label = 1;
                 case 1:
                     _b.trys.push([1, 3, , 4]);
-                    user.hashPassword(); // usa el metodo hash desde la entity user
+                    user.hashPassword(); // usa el metodo hash desde el modelo user
                     return [4 /*yield*/, database_1.default.query('INSERT INTO users set ?', user)]; // se le pasa user para que lo guarde en la base de datos
                 case 2:
                     _b.sent(); // se le pasa user para que lo guarde en la base de datos

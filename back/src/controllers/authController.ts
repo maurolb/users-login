@@ -46,9 +46,9 @@ class AuthController {
         user.password = password
         user.email = email
         
-        // HACER HASH
+        // HASH
         try{
-            user.hashPassword()  // usa el metodo hash desde la entity user
+            user.hashPassword()  // usa el metodo hash desde el modelo user
             await pool.query('INSERT INTO users set ?', user)  // se le pasa user para que lo guarde en la base de datos
         }
         catch (e){
@@ -60,6 +60,8 @@ class AuthController {
 
         res.status(200).json({msg: 'registrado', token}) // devuelve el token al front por consola
     }
+
+    
 
 }
 export default AuthController
