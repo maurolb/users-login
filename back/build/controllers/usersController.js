@@ -47,46 +47,48 @@ var database_1 = __importDefault(require("../database"));
 var UsersController = /** @class */ (function () {
     function UsersController() {
         var _this = this;
-        this.changePassword = function (req, res) { return __awaiter(_this, void 0, void 0, function () {
-            var userId, _a, oldPassword, newPassword, user, salt, e_1;
+        this.updateUser = function (req, res) { return __awaiter(_this, void 0, void 0, function () {
+            var id, _a, oldPassword, newPassword, username, email, user, normalPass, salt, e_1;
             return __generator(this, function (_b) {
                 switch (_b.label) {
                     case 0:
-                        userId = res.locals.jwtPayload //requiere el payload creado desde el verifytoken
-                        ;
+                        id = req.params.id;
                         _a = req.body //requiere los datos del front
-                        , oldPassword = _a.oldPassword, newPassword = _a.newPassword;
-                        //comprobaciones
-                        if (!(oldPassword && newPassword)) {
-                            res.status(400).json({ message: 'Los campos son requeridos' });
-                        }
-                        return [4 /*yield*/, database_1.default.query('SELECT * FROM users WHERE id = ?', [userId])
-                            // check pass
-                            //compara el password del front con el que recibimos de la base de datos, si coincide devuelve true sino false
-                        ];
+                        , oldPassword = _a.oldPassword, newPassword = _a.newPassword, username = _a.username, email = _a.email;
+                        return [4 /*yield*/, database_1.default.query('SELECT * FROM users WHERE id = ?', [id])];
                     case 1:
                         user = _b.sent();
-                        // check pass
-                        //compara el password del front con el que recibimos de la base de datos, si coincide devuelve true sino false
+                        normalPass = user[0].password // para usarlo mas despues
+                        ;
+                        //compara el password del front con el recibido de la base de datos, si coincide devuelve true sino false
                         if ((bcryptjs_1.default.compareSync(oldPassword, user[0].password)) == false) {
-                            return [2 /*return*/, res.status(400).json({ message: 'Chequea la vieja contraseña' })];
+                            return [2 /*return*/, res.status(400).json({ message: 'Contraseña incorrecta' })];
                         }
-                        user[0].password = newPassword;
+                        //seteo los valores del usuario obtenido segun id con los campos que me llegan desde el front
+                        user[0].username = username;
+                        user[0].email = email;
+                        //comprobacion, si tengo lleno el campo de nueva contraseña desde el front me crea un nuevo hash, sino setea el pass con la variable normalPasss
+                        if (newPassword == null) {
+                            user[0].password = normalPass;
+                        }
+                        else {
+                            user[0].password = newPassword;
+                            salt = bcryptjs_1.default.genSaltSync(10) // genera el salt
+                            ;
+                            user[0].password = bcryptjs_1.default.hashSync(user[0].password, salt); // le pasa el password del front y el salt generado
+                        }
                         _b.label = 2;
                     case 2:
                         _b.trys.push([2, 4, , 5]);
-                        salt = bcryptjs_1.default.genSaltSync(10) // genera el salt
-                        ;
-                        user[0].password = bcryptjs_1.default.hashSync(user[0].password, salt); // le pasa el password del front y el salt generado
-                        return [4 /*yield*/, database_1.default.query('UPDATE users set ? WHERE id = ?', [user[0], userId])];
+                        return [4 /*yield*/, database_1.default.query('UPDATE users set ? WHERE id = ?', [user[0], id])]; //guarda el nuevo usuario modificado en la base de datos
                     case 3:
-                        _b.sent();
+                        _b.sent(); //guarda el nuevo usuario modificado en la base de datos
                         return [3 /*break*/, 5];
                     case 4:
                         e_1 = _b.sent();
-                        return [2 /*return*/, res.status(400).json({ message: 'error de hash' })];
+                        return [2 /*return*/, res.status(400).json({ message: 'Error de al updatear ' })];
                     case 5:
-                        res.json({ message: 'Contraseña cambiada exitosamente' });
+                        res.json({ message: 'Usuario actualizado' });
                         return [2 /*return*/];
                 }
             });
@@ -158,11 +160,6 @@ var UsersController = /** @class */ (function () {
                 }
             });
         });
-    };
-    UsersController.prototype.updateUser = function (req, res) {
-        var id = req.params.id;
-        database_1.default.query('UPDATE users set ? WHERE id = ?', [req.body, id]);
-        res.json({ message: 'Usuario actualizado' });
     };
     UsersController.prototype.deleteUser = function (req, res) {
         var id = req.params.id;

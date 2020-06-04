@@ -47,9 +47,38 @@ class UsersController {
         res.send('Usuario creado')
     }
 
-    public updateUser(req:Request, res:Response){
+    public updateUser= async(req:Request, res:Response)=>{
         const {id} = req.params
-        pool.query('UPDATE users set ? WHERE id = ?', [req.body, id])
+        const {oldPassword, newPassword, username, email} = req.body  //requiere los datos del front
+        
+        //busca en la base de datos el usuario segun id
+        let user = await pool.query('SELECT * FROM users WHERE id = ?', [id])
+        const normalPass = user[0].password  // para usarlo mas despues
+
+        //compara el password del front con el recibido de la base de datos, si coincide devuelve true sino false
+        if ((bcrypt.compareSync(oldPassword, user[0].password)) == false) {
+            return res.status(400).json({message: 'Contraseña incorrecta'})
+        }
+        //seteo los valores del usuario obtenido segun id con los campos que me llegan desde el front
+        user[0].username = username
+        user[0].email = email
+
+        //comprobacion, si tengo lleno el campo de nueva contraseña desde el front me crea un nuevo hash, sino setea el pass con la variable normalPasss
+        if (newPassword == null){
+            user[0].password = normalPass
+        }else{
+            user[0].password = newPassword
+            // HASH
+            const salt = bcrypt.genSaltSync(10)  // genera el salt
+            user[0].password = bcrypt.hashSync(user[0].password, salt)   // le pasa el password del front y el salt generado
+        }
+        try{
+            await pool.query('UPDATE users set ? WHERE id = ?', [user[0], id])  //guarda el nuevo usuario modificado en la base de datos
+        }
+        catch (e){
+            return res.status(400).json({message: 'Error de al updatear '})
+        }
+        
         res.json({message: 'Usuario actualizado'})
     }
 
@@ -74,43 +103,11 @@ class UsersController {
         catch(e){
             return res.status(401).json({msg: 'No autorizado'})
         }
-    
    
         // call next
         next() // si todo fue bien llama a la funcion siguiente que lo indicamos en la ruta users
     }
 
-    public changePassword = async(req:Request, res:Response) => {
-        const userId = res.locals.jwtPayload  //requiere el payload creado desde el verifytoken
-        const {oldPassword, newPassword} = req.body  //requiere los datos del front
-        
-        //comprobaciones
-        if(!(oldPassword && newPassword)) {
-            res.status(400).json({message: 'Los campos son requeridos'})
-        }
-        
-        //trata de buscar en la base de datos el usuario segun el userId y lo almacena en user
-        let user = await pool.query('SELECT * FROM users WHERE id = ?', [userId])
-        
-        // check pass
-        //compara el password del front con el que recibimos de la base de datos, si coincide devuelve true sino false
-        if ((bcrypt.compareSync(oldPassword, user[0].password)) == false) {
-            return res.status(400).json({message: 'Chequea la vieja contraseña'})
-        }
-        user[0].password = newPassword
-        
-        // HASH
-        try{
-            const salt = bcrypt.genSaltSync(10)  // genera el salt
-            user[0].password = bcrypt.hashSync(user[0].password, salt)   // le pasa el password del front y el salt generado
-            await pool.query('UPDATE users set ? WHERE id = ?', [user[0], userId])
-        }
-        catch (e){
-            return res.status(400).json({message: 'error de hash'})
-        }
-        
-        res.json({message: 'Contraseña cambiada exitosamente'})
-    }
 }
 const usersController = new UsersController()
 export default usersController

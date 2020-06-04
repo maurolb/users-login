@@ -1,6 +1,9 @@
 <div class="row">
     <div class="col-md-4 offset-md-4">
         <div class="card">
+            <div class="card-header bg-dark text-white d-flex justify-content-center ">
+                Editar
+            </div>
             <div class="card-body">
                 <form (submit)="updateUser()">
                     <div class="form-group">
@@ -8,8 +11,17 @@
                         <input type="text" name="username" [(ngModel)]="user.username" class="form-control" required>
                     </div>
                     <div class="form-group">
+                        <i class="fas fa-key"></i><label for="newPassword">&nbsp;Contraseña nueva:</label>
+                        <input type="password" name="newPassword" [(ngModel)]="user.newPassword" class="form-control" required>
+                    </div>
+                    <div class="form-group">
                         <i class="fas fa-envelope"></i><label for="email">&nbsp;Email:</label>
-                        <input type="text" name="email" [(ngModel)]="user.email" class="form-control" required>
+                        <input type="email" name="email" [(ngModel)]="user.email" class="form-control" required>
+                    </div><br><hr>
+                    
+                    <div class="form-group">
+                        <i class="fas fa-key"></i><label for="oldPassword">&nbsp;Confirmar contraseña:</label>
+                        <input type="password" name="oldPassword" [(ngModel)]="user.oldPassword" class="form-control" required>
                     </div>
                     <button type="submit" class="btn btn-success btn-block">
                         Guardar

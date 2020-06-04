@@ -10,8 +10,6 @@ router.post('/', userController.verifyToken, userController.createUser)
 router.delete('/:id', userController.verifyToken, userController.deleteUser)
 router.put('/:id', userController.verifyToken, userController.updateUser)
 
-// actualizar contraseña
-router.put('/changepass', userController.verifyToken, userController.changePassword)
 
 
 export default router
